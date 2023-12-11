@@ -84,7 +84,7 @@ jobs:
 
       - name:  Sleep
         run: |
-          sleep 1m
+          sleep 30s
 
       - name: Make sure openssh-server is installed
         run: |
@@ -94,9 +94,9 @@ jobs:
         run: |
           echo "$ARC_INSTALL" > ARC_INSTALL.sh && ls -ltra 
 
-      - name: source OPENRC
+      - name: Transfer OPENRC to openrc.sh file and then source it
         run: |
-          source $OPENRC
+          echo "$OPENRC" > openrc.sh && source openrc.sh
 
       - name: scp to VM
         run: |
