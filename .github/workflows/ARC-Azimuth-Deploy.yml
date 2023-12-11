@@ -96,7 +96,7 @@ jobs:
 
       - name: Transfer OPENRC to openrc.sh file and then source it
         run: |
-          echo "$OPENRC" > openrc.sh && source openrc.sh
+          echo "$OPENRC" > openrc.sh &&  echo "$OS_PASSWORD_INPUT" | source openrc.sh
 
       - name: scp to VM
         run: |
