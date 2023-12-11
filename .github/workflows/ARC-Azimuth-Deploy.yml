@@ -96,7 +96,7 @@ jobs:
 
       - name: scp to VM
         run: |
-          sudo scp -i ~/.ssh/id_rsa ARC_INSTALL.sh ubuntu@$(openstack server list --name OlMacDonaldsFarm -c Networks | grep -oE "(\w*[.]+[0-9]{1,3})+"):~/.
+          sudo scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ARC_INSTALL.sh ubuntu@$(openstack server list --name OlMacDonaldsFarm -c Networks | grep -oE "(\w*[.]+[0-9]{1,3})+"):~/.
 
       - name: Connect to VM
         run: |
