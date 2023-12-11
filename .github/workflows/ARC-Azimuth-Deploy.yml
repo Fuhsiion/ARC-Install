@@ -102,23 +102,24 @@ jobs:
 
       - name: Generate SSH config file
         run: |
-          echo "$PROXY_CONFIG" > ~/.ssh/config && chmod 600 ~/.ssh/config && chmod 600 ~/.ssh/id_ed25519 && chmod 600 ~/.ssh/id_ed25519.pub && cat ~/.ssh/config
+          echo "$PROXY_CONFIG" > ~/.ssh/config 
+        #&& chmod 600 ~/.ssh/config && chmod 600 ~/.ssh/id_ed25519 && chmod 600 ~/.ssh/id_ed25519.pub && cat ~/.ssh/config
 
       - name: Transfer OPENRC to openrc.sh file and then source it
         run: |
           echo "$OPENRC" > openrc.sh &&  echo "$OS_PASSWORD_INPUT" | source openrc.sh
 
-      #- name: scp to VM
-      #  run: |
-      #    sudo scp -J sms-bastion -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ARC_INSTALL.sh ubuntu@$(openstack server list --name OlMacDonaldsFarm -c Networks | grep -oE "(\w*[.]+[0-9]{1,3})+"):~/.
+      - name: scp to VM
+        run: |
+          scp -J sms-bastion -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ARC_INSTALL.sh ubuntu@$(openstack server list --name OlMacDonaldsFarm -c Networks | grep -oE "(\w*[.]+[0-9]{1,3})+"):~/.
 
       - name: Connect to VM
         run: |
-          sudo ssh -J sms-bastion -i ~/.ssh/id_rsa ubuntu@$(openstack server list --name OlMacDonaldsFarm -c Networks | grep -oE "(\w*[.]+[0-9]{1,3})+")
+          ssh -J sms-bastion -i ~/.ssh/id_rsa ubuntu@$(openstack server list --name OlMacDonaldsFarm -c Networks | grep -oE "(\w*[.]+[0-9]{1,3})+")
 
-      - name: Transfer ARC install script to ARC_INSTALL.sh file
-        run: |
-          echo "$ARC_INSTALL" > ARC_INSTALL.sh && ls -ltra 
+      #- name: Transfer ARC install script to ARC_INSTALL.sh file
+      #  run: |
+      #    echo "$ARC_INSTALL" > ARC_INSTALL.sh && ls -ltra 
 
       - name: Transfer SSH public key to VM
         run: |
