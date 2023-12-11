@@ -110,7 +110,7 @@ jobs:
 
       - name: scp to VM
         run: |
-          sudo scp -oProxyCommand="ssh -W %h:%p sms-bastion" -o StrictHostKeyChecking=no ARC_INSTALL.sh ubuntu@$(openstack server list --name OlMacDonaldsFarm -c Networks | grep -oE "(\w*[.]+[0-9]{1,3})+"):~/.
+          sudo scp -J sms-bastion -o StrictHostKeyChecking=no ARC_INSTALL.sh ubuntu@$(openstack server list --name OlMacDonaldsFarm -c Networks | grep -oE "(\w*[.]+[0-9]{1,3})+"):~/.
 
       - name: Connect to VM
         run: |
