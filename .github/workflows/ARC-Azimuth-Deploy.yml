@@ -96,10 +96,6 @@ jobs:
         run: |
           echo "$ARC_INSTALL" > ARC_INSTALL.sh && ls -ltra 
 
-      - name: Transfer OPENRC to openrc.sh file and then source it
-        run: |
-          echo "$OPENRC" > openrc.sh &&  echo "$OS_PASSWORD_INPUT" | source openrc.sh
-
       - name: Transfer SSH public key to VM
         run: |
           echo "$SSH_PIV_KEY" > ~/.ssh/id_ed25519 && echo "$SSH_PUB_KEY" > ~/.ssh/id_ed25519.pub
@@ -108,13 +104,21 @@ jobs:
         run: |
           echo "$PROXY_CONFIG" > ~/.ssh/config
 
-      - name: scp to VM
+      - name: Transfer OPENRC to openrc.sh file and then source it
         run: |
-          sudo scp -J sms-bastion -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ARC_INSTALL.sh ubuntu@$(openstack server list --name OlMacDonaldsFarm -c Networks | grep -oE "(\w*[.]+[0-9]{1,3})+"):~/.
+          echo "$OPENRC" > openrc.sh &&  echo "$OS_PASSWORD_INPUT" | source openrc.sh
+
+      #- name: scp to VM
+      #  run: |
+      #    sudo scp -J sms-bastion -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ARC_INSTALL.sh ubuntu@$(openstack server list --name OlMacDonaldsFarm -c Networks | grep -oE "(\w*[.]+[0-9]{1,3})+"):~/.
 
       - name: Connect to VM
         run: |
           sudo ssh -J sms-bastion -i ~/.ssh/id_rsa ubuntu@$(openstack server list --name OlMacDonaldsFarm -c Networks | grep -oE "(\w*[.]+[0-9]{1,3})+")
+
+      - name: Transfer ARC install script to ARC_INSTALL.sh file
+        run: |
+          echo "$ARC_INSTALL" > ARC_INSTALL.sh && ls -ltra 
 
       - name: Transfer SSH public key to VM
         run: |
