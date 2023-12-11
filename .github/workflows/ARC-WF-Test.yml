@@ -1,0 +1,122 @@
+name: Install ARC Workflow from sh file in secrets
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  install:
+    name: Install ARC
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+      statuses: write
+    env:
+      OPENRC: ${{ secrets.OPENRC }}
+      OS_PASSWORD_INPUT: ${{ secrets.OS_PASSWORD_INPUT }}
+      PRIVATE_KEY_FILE: ${{ secrets.PRIVATE_KEY_FILE }}
+      OS_CLOUDS: ${{ secrets.OS_CLOUDS }}
+      OS_CLOUD: openstack
+      OS_CLIENT_CONFIG_FILE: ./clouds.yaml  
+      ARC_INSTALL: ${{ secrets.ARC_SH }}
+      PEM_KEY: ${{ secrets.PEM_KEY }}
+      SSH_PUB_KEY: ${{ secrets.SSH_PUB_KEY }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Install Python
+        run: |
+          sudo apt-get update -y && sudo apt install python3.8 python3.8-venv python3-venv -y
+
+      - name: Create venv
+        run: |
+          python3 -m venv openstack-venv
+
+      - name: Activate venv
+        run: |
+          source openstack-venv/bin/activate
+
+      - name: Install pip and OpenStack Client
+        run: |
+          pip install -U requests && pip install python-openstackclient
+
+      - name: Make .ssh directory 
+        run: |
+          mkdir ~/.ssh
+
+      - name: Generate SSH Key
+        run: |
+          sudo ssh-keygen -t rsa -N '' -f ~/.ssh/id_rsa <<<y
+
+      - name: Create clouds.yaml and set cloud variable
+        run: |
+          echo "$OS_CLOUDS" > $OS_CLIENT_CONFIG_FILE
+
+      - name: Which OpenStack
+        run: |
+          which openstack
+
+      - name: Check for key existing
+        run: |
+          KEYEXIST=$(openstack keypair list -c Name | if grep -q "ChiPair"; then echo "true"; else echo "false"; fi)
+
+      - name: Generate OpenStack KeyPair if needed
+        run: |
+          if test "$KEYEXIST" = "false"; then openstack keypair create --public-key ~/.ssh/id_rsa.pub --type ssh ChiPair; else openstack keypair delete ChiPair && openstack keypair create --public-key ~/.ssh/id_rsa.pub --type ssh ChiPair; fi && echo "$KEYEXIST"
+
+      - name: Check for volume existing
+        run: |
+          VOLEXIST=$(openstack volume list -c Name | if grep -q "TheFarm"; then echo "true"; else echo "false"; fi)
+
+      - name: Create Boot Volume if needed
+        run: |
+          if test "$VOLEXIST" = "false"; then openstack volume create --image Ubuntu-22.04 --size 35 --bootable TheFarm; else openstack volume delete TheFarm && openstack volume create --image Ubuntu-22.04 --size 35 --bootable TheFarm; fi
+
+      - name:  Initialise VM Instance
+        run: |
+          openstack server create --flavor general.v1.medium  --volume $(openstack volume show TheFarm -f value -c id) --block-device delete_on_termination=true --key-name ChiPair --network stackhpc-ipv4-geneve --wait OlMacDonaldsFarm
+
+      - name:  Sleep
+        run: |
+          sleep 2m
+
+      - name: Make sure openssh-server is installed
+        run: |
+          sudo apt-get install openssh-server -y
+
+      - name: Connect to VM
+        run: |
+          sudo ssh -i ~/.ssh/id_rsa  ubuntu@$(openstack server list --name OlMacDonaldsFarm -c Networks | grep -oE "(\w*[.]+[0-9]{1,3})+")
+
+      - name: Transfer SSH public key to VM
+        run: |
+          echo "$SSH_PUB_KEY" >> ~/.ssh/authorized_keys
+
+      - name: Transfer ARC install script to ARC_INSTALL.sh file
+        run: |
+          echo "$ARC_INSTALL" > ARC_INSTALL.sh
+
+      - name: Assign Secret to variable PRIVATE_KEY_FILE
+        run: |
+          echo "$PEM_KEY" > $PRIVATE_KEY_FILE
+
+      - name: Run ARC_INSTALL.sh
+        run: |
+          chmod +x ARC_INSTALL.sh
+          ./ARC_INSTALL.sh
+
+      - name: Disconnect
+        run: |
+          exit
+
+      - name: Delete VM
+        run: |
+          openstack server delete OlMacDonaldsFarm --wait
+
+      - name: Delete KeyPair
+        run: |
+          openstack keypair delete ChiPair
