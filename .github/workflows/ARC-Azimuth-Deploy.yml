@@ -54,7 +54,7 @@ jobs:
 
       - name: Generate SSH Key
         run: |
-          sudo ssh-keygen -t rsa -N '' -f ~/.ssh/id_rsa <<<y
+          ssh-keygen -t rsa -N '' -f ~/.ssh/id_rsa <<<y
 
       - name: Create clouds.yaml and set cloud variable
         run: |
@@ -115,7 +115,7 @@ jobs:
 
       - name: Connect to VM
         run: |
-          ssh -J sms-bastion -i ~/.ssh/id_rsa ubuntu@$(openstack server list --name OlMacDonaldsFarm -c Networks | grep -oE "(\w*[.]+[0-9]{1,3})+")
+          ssh -J sms-bastion -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ubuntu@$(openstack server list --name OlMacDonaldsFarm -c Networks | grep -oE "(\w*[.]+[0-9]{1,3})+")
 
       #- name: Transfer ARC install script to ARC_INSTALL.sh file
       #  run: |
