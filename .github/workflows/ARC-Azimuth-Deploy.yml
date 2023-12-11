@@ -92,15 +92,19 @@ jobs:
 
       - name: Transfer ARC install script to ARC_INSTALL.sh file
         run: |
-          echo "$ARC_INSTALL" > ARC_INSTALL.sh
+          echo "$ARC_INSTALL" > ARC_INSTALL.sh && ls -ltra 
+
+      - name: source OPENRC
+        run: |
+          source $OPENRC
 
       - name: scp to VM
         run: |
-          sudo scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ARC_INSTALL.sh ubuntu@$(openstack server list --name OlMacDonaldsFarm -c Networks | grep -oE "(\w*[.]+[0-9]{1,3})+"):~/.
+          sudo scp -oProxyCommand="ssh -W %h:%p max@185.45.78.150" -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ARC_INSTALL.sh ubuntu@$(openstack server list --name OlMacDonaldsFarm -c Networks | grep -oE "(\w*[.]+[0-9]{1,3})+"):~/.
 
       - name: Connect to VM
         run: |
-          sudo ssh -i ~/.ssh/id_rsa  ubuntu@$(openstack server list --name OlMacDonaldsFarm -c Networks | grep -oE "(\w*[.]+[0-9]{1,3})+")
+          sudo ssh -J max@185.45.78.150 -i ~/.ssh/id_rsa  ubuntu@$(openstack server list --name OlMacDonaldsFarm -c Networks | grep -oE "(\w*[.]+[0-9]{1,3})+")
 
       - name: Transfer SSH public key to VM
         run: |
