@@ -115,7 +115,7 @@ jobs:
 
       - name: scp to VM
         run: |
-          scp -J sms-bastion -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 ARC_INSTALL.sh ubuntu@$(openstack server list --name OlMacDonaldsFarm -c Networks | grep -oE "(\w*[.]+[0-9]{1,3})+"):~/.
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 -J sms-bastion ./ARC_INSTALL.sh ubuntu@$(openstack server list --name OlMacDonaldsFarm -c Networks | grep -oE "(\w*[.]+[0-9]{1,3})+"):~/. -v
 
       - name: Connect to VM
         run: |
