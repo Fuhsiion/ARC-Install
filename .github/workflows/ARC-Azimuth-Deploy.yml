@@ -115,11 +115,11 @@ jobs:
 
       - name: scp to VM
         run: |
-          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 -J sms-bastion ./ARC_INSTALL.sh ubuntu@$(openstack server list --name OlMacDonaldsFarm -c Networks | grep -oE "(\w*[.]+[0-9]{1,3})+"):~/. -v
+          scp -v -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 -J sms-bastion ./ARC_INSTALL.sh ubuntu@$(openstack server list --name OlMacDonaldsFarm -c Networks | grep -oE "(\w*[.]+[0-9]{1,3})+"):~/.
 
       - name: Connect to VM
         run: |
-          ssh -J sms-bastion -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 ubuntu@$(openstack server list --name OlMacDonaldsFarm -c Networks | grep -oE "(\w*[.]+[0-9]{1,3})+")
+          ssh -o StrictHostKeyChecking=no -J sms-bastion  ubuntu@$(openstack server list --name OlMacDonaldsFarm -c Networks | grep -oE "(\w*[.]+[0-9]{1,3})+")
 
       #- name: Transfer ARC install script to ARC_INSTALL.sh file
       #  run: |
