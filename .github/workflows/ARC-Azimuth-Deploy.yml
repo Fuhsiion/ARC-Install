@@ -31,7 +31,8 @@ jobs:
 
       - name: Install Python
         run: |
-          sudo apt-get update -y && sudo apt install python3.10 python3.10-venv python3-venv -y
+          sudo apt-get update -y && sudo apt install python3 python3-venv -y && sudo apt-get install build-essential libssl-dev libffi-dev python3-dev -y
+
 
       - name: Create venv
         run: |
@@ -104,6 +105,10 @@ jobs:
       - name: Transfer KUBECONFIG to .kube/config
         run: |
           echo "$KUBECONFIG" > ~/.kube/config
+
+      - name: Export KUBECONFIG
+        run: |
+          export KUBECONFIG=~/.kube/config
 
       - name: Transfer ARC install script to ARC_INSTALL.sh file
         run: |
