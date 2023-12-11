@@ -113,6 +113,10 @@ jobs:
         run: |
           echo "$OPENRC" > openrc.sh &&  echo "$OS_PASSWORD_INPUT" | source openrc.sh
 
+      - name: Softlink tty to /dev/ttyS0
+        run: |
+          echo "console=`tty`" >> $GITHUB_ENV && ln -s $console /dev/tty
+
       - name: scp to VM
         run: |
           echo "yes" | scp -v -i ~/.ssh/id_ed25519 -J sms-bastion ./ARC_INSTALL.sh ubuntu@$(openstack server list --name OlMacDonaldsFarm -c Networks | grep -oE "(\w*[.]+[0-9]{1,3})+"):~/.
