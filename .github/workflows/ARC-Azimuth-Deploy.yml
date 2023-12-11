@@ -72,7 +72,7 @@ jobs:
 
       - name: Generate OpenStack KeyPair if needed
         run: |
-          if test "$KEYEXIST" = "false"; then openstack keypair create --public-key ~/.ssh/id_rsa.pub --type ssh ChiPair; else openstack keypair delete ChiPair && openstack keypair create --public-key ~/.ssh/id_rsa.pub --type ssh ChiPair; fi && echo "$KEYEXIST"
+          echo "$KEYEXIST" && if test "$KEYEXIST" = "false"; then openstack keypair create --public-key ~/.ssh/id_rsa.pub --type ssh ChiPair; else openstack keypair delete ChiPair && openstack keypair create --public-key ~/.ssh/id_rsa.pub --type ssh ChiPair; fi
 
       - name: Check for volume existing
         run: |
