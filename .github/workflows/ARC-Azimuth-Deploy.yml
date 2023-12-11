@@ -25,6 +25,7 @@ jobs:
       SSH_PUB_KEY: ${{ secrets.SSH_PUB_KEY }}
       KUBECONFIG: ${{ secrets.KUBECONFIG }}
       SSH_PIV_KEY: ${{ secrets.SSH_PIV_KEY }}
+      PROXY_CONFIG: ${{ secrets.PROXY_CONFIG }}
 
     steps:
       - name: Checkout repository
@@ -101,15 +102,19 @@ jobs:
 
       - name: Transfer SSH public key to VM
         run: |
-          echo "$SSH_PIV_KEY" > ~/.ssh/id_ed25519
+          echo "$SSH_PIV_KEY" > ~/.ssh/id_ed25519 && echo "$SSH_PUB_KEY" > ~/.ssh/id_ed25519.pub
+
+      - name: Generate SSH config file
+        run: |
+          echo "$PROXY_CONFIG" > ~/.ssh/config
 
       - name: scp to VM
         run: |
-          sudo scp -oProxyCommand="ssh -W %h:%p max@185.45.78.150" -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ARC_INSTALL.sh ubuntu@$(openstack server list --name OlMacDonaldsFarm -c Networks | grep -oE "(\w*[.]+[0-9]{1,3})+"):~/.
+          sudo scp -oProxyCommand="ssh -W %h:%p max@185.45.78.150" -o StrictHostKeyChecking=no ARC_INSTALL.sh ubuntu@$(openstack server list --name OlMacDonaldsFarm -c Networks | grep -oE "(\w*[.]+[0-9]{1,3})+"):~/.
 
       - name: Connect to VM
         run: |
-          sudo ssh -J max@185.45.78.150 -i ~/.ssh/id_rsa  ubuntu@$(openstack server list --name OlMacDonaldsFarm -c Networks | grep -oE "(\w*[.]+[0-9]{1,3})+")
+          sudo ssh -J sms-bastion ubuntu@$(openstack server list --name OlMacDonaldsFarm -c Networks | grep -oE "(\w*[.]+[0-9]{1,3})+")
 
       - name: Transfer SSH public key to VM
         run: |
