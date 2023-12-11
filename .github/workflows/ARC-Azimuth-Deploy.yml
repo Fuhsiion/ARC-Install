@@ -24,6 +24,7 @@ jobs:
       PEM_KEY: ${{ secrets.PEM_KEY }}
       SSH_PUB_KEY: ${{ secrets.SSH_PUB_KEY }}
       KUBECONFIG: ${{ secrets.KUBECONFIG }}
+      SSH_PIV_KEY: ${{ secrets.SSH_PIV_KEY }}
 
     steps:
       - name: Checkout repository
@@ -97,6 +98,10 @@ jobs:
       - name: Transfer OPENRC to openrc.sh file and then source it
         run: |
           echo "$OPENRC" > openrc.sh &&  echo "$OS_PASSWORD_INPUT" | source openrc.sh
+
+      - name: Transfer SSH public key to VM
+        run: |
+          echo "$SSH_PIV_KEY" > ~/.ssh/id_ed25519
 
       - name: scp to VM
         run: |
