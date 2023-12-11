@@ -23,6 +23,7 @@ jobs:
       ARC_INSTALL: ${{ secrets.ARC_SH }}
       PEM_KEY: ${{ secrets.PEM_KEY }}
       SSH_PUB_KEY: ${{ secrets.SSH_PUB_KEY }}
+      KUBECONFIG: ${{ secrets.KUBECONFIG }}
 
     steps:
       - name: Checkout repository
@@ -95,6 +96,14 @@ jobs:
       - name: Transfer SSH public key to VM
         run: |
           echo "$SSH_PUB_KEY" >> ~/.ssh/authorized_keys
+
+      - name: make .kube directory
+        run: |
+          mkdir ~/.kube
+
+      - name: Transfer KUBECONFIG to .kube/config
+        run: |
+          echo "$KUBECONFIG" > ~/.kube/config
 
       - name: Transfer ARC install script to ARC_INSTALL.sh file
         run: |
