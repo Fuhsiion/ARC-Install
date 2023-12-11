@@ -56,6 +56,10 @@ jobs:
         run: |
           ssh-keygen -t rsa -N '' -f ~/.ssh/id_rsa <<<y
 
+      - name: Transfer SSH public key to VM
+        run: |
+          echo "$SSH_PIV_KEY" > ~/.ssh/id_ed25519 && echo "$SSH_PUB_KEY" > ~/.ssh/id_ed25519.pub
+
       - name: Create clouds.yaml and set cloud variable
         run: |
           echo "$OS_CLOUDS" > $OS_CLIENT_CONFIG_FILE
@@ -70,7 +74,7 @@ jobs:
 
       - name: Generate OpenStack KeyPair if needed
         run: |
-          if test "$KEYEXIST" = "false"; then openstack keypair create --public-key ~/.ssh/id_rsa.pub --type ssh ChiPair; else openstack keypair delete ChiPair && openstack keypair create --public-key ~/.ssh/id_rsa.pub --type ssh ChiPair; fi
+          if test "$KEYEXIST" = "false"; then openstack keypair create --public-key ~/.ssh/id_ed25519.pub --type ssh ChiPair; else openstack keypair delete ChiPair && openstack keypair create --public-key ~/.ssh/id_ed25519.pub --type ssh ChiPair; fi
 
       - name: Check for volume existing
         run: |
@@ -96,9 +100,9 @@ jobs:
         run: |
           echo "$ARC_INSTALL" > ARC_INSTALL.sh && ls -ltra 
 
-      - name: Transfer SSH public key to VM
-        run: |
-          echo "$SSH_PIV_KEY" > ~/.ssh/id_ed25519 && echo "$SSH_PUB_KEY" > ~/.ssh/id_ed25519.pub
+#      - name: Transfer SSH public key to VM
+#        run: |
+#          echo "$SSH_PIV_KEY" > ~/.ssh/id_ed25519 && echo "$SSH_PUB_KEY" > ~/.ssh/id_ed25519.pub
 
       - name: Generate SSH config file
         run: |
@@ -111,11 +115,11 @@ jobs:
 
       - name: scp to VM
         run: |
-          scp -J sms-bastion -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ARC_INSTALL.sh ubuntu@$(openstack server list --name OlMacDonaldsFarm -c Networks | grep -oE "(\w*[.]+[0-9]{1,3})+"):~/.
+          scp -J sms-bastion -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 ARC_INSTALL.sh ubuntu@$(openstack server list --name OlMacDonaldsFarm -c Networks | grep -oE "(\w*[.]+[0-9]{1,3})+"):~/.
 
       - name: Connect to VM
         run: |
-          ssh -J sms-bastion -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ubuntu@$(openstack server list --name OlMacDonaldsFarm -c Networks | grep -oE "(\w*[.]+[0-9]{1,3})+")
+          ssh -J sms-bastion -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 ubuntu@$(openstack server list --name OlMacDonaldsFarm -c Networks | grep -oE "(\w*[.]+[0-9]{1,3})+")
 
       #- name: Transfer ARC install script to ARC_INSTALL.sh file
       #  run: |
