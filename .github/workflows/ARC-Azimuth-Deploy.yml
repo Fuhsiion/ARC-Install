@@ -64,7 +64,7 @@ jobs:
 
       - name: Check for key existing
         run: |
-          KEYEXIST=$(openstack keypair list -c Name | if grep -q "ChiPair"; then echo "true"; else echo "false"; fi) && echo "$KEYEXIST"
+          echo "KEYEXIST=$(openstack keypair list -c Name | if grep -q "ChiPair"; then echo "true"; else echo "false"; fi)" >> $GITHUB_ENV
 
       - name:  Sleep
         run: |
@@ -72,11 +72,11 @@ jobs:
 
       - name: Generate OpenStack KeyPair if needed
         run: |
-          echo "$KEYEXIST" && if test "$KEYEXIST" = "false"; then openstack keypair create --public-key ~/.ssh/id_rsa.pub --type ssh ChiPair; else openstack keypair delete ChiPair && openstack keypair create --public-key ~/.ssh/id_rsa.pub --type ssh ChiPair; fi
+          if test "$KEYEXIST" = "false"; then openstack keypair create --public-key ~/.ssh/id_rsa.pub --type ssh ChiPair; else openstack keypair delete ChiPair && openstack keypair create --public-key ~/.ssh/id_rsa.pub --type ssh ChiPair; fi
 
       - name: Check for volume existing
         run: |
-          VOLEXIST=$(openstack volume list -c Name | if grep -q "TheFarm"; then echo "true"; else echo "false"; fi) && echo "$VOLEXIST"
+          echo "VOLEXIST=$(openstack volume list -c Name | if grep -q "TheFarm"; then echo "true"; else echo "false"; fi)" >> $GITHUB_ENV
 
       - name:  Sleep
         run: |
@@ -116,7 +116,7 @@ jobs:
 
       - name: Export KUBECONFIG
         run: |
-          export KUBECONFIG=~/.kube/config
+          echo "KUBECONFIG=~/.kube/config" >> $GITHUB_ENV
 
       - name: Transfer ARC install script to ARC_INSTALL.sh file
         run: |
