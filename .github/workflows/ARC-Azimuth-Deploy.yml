@@ -173,10 +173,10 @@ jobs:
 #        run: |
 #          exit
 
-#      - name: Delete VM
-#        run: |
-#          openstack server delete OlMacDonaldsFarm --wait
+      - name: Delete VM
+        run: |
+          openstack server delete OlMacDonaldsFarm --wait
 
-#      - name: Delete KeyPair
-#        run: |
-#          openstack keypair delete ChiPair
+      - name: Delete KeyPair
+        run: |
+          openstack keypair delete ChiPair
