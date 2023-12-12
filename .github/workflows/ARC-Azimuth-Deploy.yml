@@ -163,13 +163,11 @@ jobs:
 
       - name: Export KUBECONFIG
         run: |
-          eval $(ssh-agent) && ssh-add ~/.ssh/id_ed25519 && ssh -o StrictHostKeyChecking=no -J sms-bastion  ubuntu@$(openstack server list --name OlMacDonaldsFarm -c Networks | grep -oE "(\w*[.]+[0-9]{1,3})+") 
- "KUBECONFIG=~/.kube/config; export KUBECONFIG" 
+          eval $(ssh-agent) && ssh-add ~/.ssh/id_ed25519 && ssh -o StrictHostKeyChecking=no -J sms-bastion  ubuntu@$(openstack server list --name OlMacDonaldsFarm -c Networks | grep -oE "(\w*[.]+[0-9]{1,3})+") "KUBECONFIG=~/.kube/config; export KUBECONFIG" 
 
       - name: Run ARC_INSTALL.sh
         run: |
-          chmod +x ARC_INSTALL.sh
-          ./ARC_INSTALL.sh
+          chmod +x ARC_INSTALL.sh && ./ARC_INSTALL.sh
 
       - name: Disconnect
         run: |
